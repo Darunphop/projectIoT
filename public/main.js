@@ -1,4 +1,4 @@
-$(function() {
+$(function() {{}
     
         var container = $("#live-chart");
     
@@ -13,6 +13,10 @@ $(function() {
         var esp2_icon = $("#esp2-icon");
         var esp2_status = $("#esp2-status");
         var esp2_panel = $("#esp2-panel");
+
+        var esp3_icon = $("#esp3-icon");
+        var esp3_status = $("#esp3-status");
+        var esp3_panel = $("#esp3-panel");
     
         var esp1_led_icon = $("#esp1-led-icon");
         var esp1_led_status = $("#esp1-led-status");
@@ -39,6 +43,7 @@ $(function() {
         var esp2_led = false;
         var esp1_offline = 0;
         var esp2_offline = 0;
+        var esp3_offline = 0;
     
         var dataset = {
             get: function() {
@@ -134,6 +139,7 @@ $(function() {
     
         var ESP1_PING_TOPIC = "cpe24mqttdemo/esp1/ping";
         var ESP2_PING_TOPIC = "cpe24mqttdemo/esp2/ping";
+        var ESP3_PING_TOPIC = "cpe24mqttdemo/esp2/ping";
     
         var ESP1_LED_TOPIC = "cpe24mqttdemo/esp1/led";
         var ESP1_SENSOR_TOPIC = "cpe24mqttdemo/esp1/sensor";
@@ -161,6 +167,7 @@ $(function() {
                 // Ping Pong. Checking esp is alive?
                 client.subscribe(ESP1_PING_TOPIC, {qos: 2});
                 client.subscribe(ESP2_PING_TOPIC, {qos: 2});
+                client.subscribe(ESP3_PING_TOPIC, {qos: 2});
                 // sensor and switch status
                 client.subscribe(ESP1_SENSOR_TOPIC, {qos: 2});
                 client.subscribe(ESP1_LED_TOPIC, {qos: 2});
@@ -170,6 +177,7 @@ $(function() {
                 // Set default ping message
                 publish("0", ESP1_PING_TOPIC, 2, true);
                 publish("0", ESP2_PING_TOPIC, 2, true);
+                publish("0", ESP3_PING_TOPIC, 2, true);
             },
     
             //Gets Called if the connection could not be established
@@ -275,6 +283,20 @@ $(function() {
                     esp2_offline = 0;
                 }
                 
+            }else if(topic == ESP3_PING_TOPIC) {
+                if(payload == "iamalive") {
+                    if(esp3_offline>3) {
+                        console.log("ESP3: Online");
+                    }
+                    esp3_status.text("Online");
+                    esp3_icon.removeClass("fa-close");
+                    esp3_icon.addClass("fa-check");
+                    esp3_panel.removeClass("panel-danger");
+                    esp3_panel.addClass("panel-primary");
+                    esp3_led_panel.fadeIn();
+                    esp3_offline = 0;
+                }
+                
             }
         };
     
@@ -299,6 +321,7 @@ $(function() {
         var offline_check = function() {
             esp1_offline++;
             esp2_offline++;
+            esp3_offline++;
             if(esp1_offline>3){
                 esp1_sensor_data = [];
                 esp1_status.text("Offline");
@@ -318,6 +341,16 @@ $(function() {
                 esp2_panel.removeClass("panel-primary");
                 esp2_led_panel.fadeOut();
                 console.log("ESP2: Go Offline");
+            }
+            if(esp3_offline>3){
+                esp3_sensor_data = [];
+                esp3_status.text("Offline");
+                esp3_icon.addClass("fa-close");
+                esp3_icon.removeClass("fa-check");
+                esp3_panel.addClass("panel-danger");
+                esp3_panel.removeClass("panel-primary");
+                esp3_led_panel.fadeOut();
+                console.log("ESP3: Go Offline");
             }
         };
     

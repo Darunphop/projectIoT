@@ -34,9 +34,13 @@
 
 </head>
 <body>
+  @component('layouts.nav')
+  @endcomponent
   <div class="container">
     @yield('content')
   </div>
 
+
+  
 </body>
 </html>
