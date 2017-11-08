@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>MQTT Web Client - DEMO</title>
+    <title>IoT Restaurant</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="sbadmin2/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -25,7 +25,6 @@
 
     <!-- Custom Fonts -->
     <link href="sbadmin2/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -34,3 +33,10 @@
     <![endif]-->
 
 </head>
+<body>
+  <div class="container">
+    @yield('content')
+  </div>
+
+</body>
+</html>
