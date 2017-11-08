@@ -1,2 +1,4 @@
 /vendor
 .env
+/mqtt
+/sbadmin2
