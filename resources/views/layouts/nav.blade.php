@@ -19,6 +19,20 @@
                         <li>
                             <a href="/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
                         </li>
+                        <ul class="list-group">
+                            <li class="list-group-item justify-content-between">
+                                All customers
+                                <span class="badge badge-default badge-pill">3</span>
+                            </li>
+                            <li class="list-group-item justify-content-between">
+                                In waiting queue
+                                <span class="badge badge-default badge-pill">1</span>
+                            </li>
+                            <li class="list-group-item justify-content-between">
+                                Waiting for order
+                                <span class="badge badge-default badge-pill">2</span>
+                            </li>
+                        </ul>
                         <li>
                             <a href="https://github.com/chawasit/MQTT-Web-Client-Demo"><i class="fa fa-github fa-fw"></i> Folk Me on Github</a>
                         </li>
