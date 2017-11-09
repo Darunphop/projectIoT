@@ -33,6 +33,13 @@
                                 <span class="badge badge-default badge-pill">2</span>
                             </li>
                         </ul>
+                        <ul class="list-group">
+                            <li class="list-group-item justify-content-between">
+                                Today customers
+                                <span class="badge badge-default badge-pill">15</span>
+                            </li>
+                        </ul>
+
                         <li>
                             <a href="https://github.com/chawasit/MQTT-Web-Client-Demo"><i class="fa fa-github fa-fw"></i> Folk Me on Github</a>
                         </li>
