@@ -5,16 +5,13 @@
     <!-- /.panel-heading -->
     <div class="panel-body">
         <div class="list-group">
-            <a href="#" class="list-group-item">
-                <i class="fa fa-shopping-cart fa-fw"></i> Client 1
-                <span class="pull-right text-muted small"><em>9:49 AM</em>
-                </span>
-            </a>
-            <a href="#" class="list-group-item">
+            <div class="" id="order-list">
+            </div>
+            <!-- <a href="#" class="list-group-item">
                 <i class="fa fa-shopping-cart fa-fw"></i> Client 3
                 <span class="pull-right text-muted small"><em>9:52 AM</em>
                 </span>
-            </a>
+            </a> -->
         </div>
         <!-- /.list-group -->
     </div>

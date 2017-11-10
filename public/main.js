@@ -22,6 +22,9 @@ $(function() {{}
         var waiting_q_num = $("#waiting-Q");
         var waiting_o_num = $("#waiting-O");
         var today_customer = $("#today-customer");
+
+        var order_list = $("#order-list");
+        var queue_list = $("#queue-list");
     
         var esp1_offline = 0;
         var esp2_offline = 0;
@@ -46,10 +49,20 @@ $(function() {{}
             today_customer.text(all_customer);
             
             if(waiting_queue!=0 && in_ordering_node.length < max_availible_order){
-                enqO(deqQ());
+                var toEnq = deqQ();
+                enqO(toEnq);
+                publish("ready", "restaurant/"+toEnq, 2, true);
             }
+            updateOrder();
 
 
+        }
+
+        var updateOrder = function (){
+            document.getElementById("order-list").innerHTML = "";
+            order_queue.forEach(function(order) {
+                document.getElementById("order-list").innerHTML += "<a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-shopping-cart fa-fw\"></i> Client "+ order +"<span class=\"pull-right text-muted small\"><em>9:52 AM</em></span></a>"; 
+            });
         }
     
         // Boker info
