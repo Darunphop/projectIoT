@@ -45,9 +45,10 @@ $(function() {{}
             waiting_q_num.text(waiting_queue.length);
             today_customer.text(all_customer);
             
-            if(in_ordering_node.length < max_availible_order){
-
+            if(waiting_queue!=0 && in_ordering_node.length < max_availible_order){
+                enqO(deqQ());
             }
+
 
         }
     
