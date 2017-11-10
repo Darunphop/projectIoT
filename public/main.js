@@ -135,17 +135,17 @@ $(function() {{}
         // var hostname = "broker.mqttdashboard.com";
         var hostname = "broker.mqtt-cpe.ml";
         var port = 9001;
-        var clientid = "cpe24-demo-"+parseInt(Math.random() * 100000, 16);
+        var clientid = "cpe24-projectG2-"+parseInt(Math.random() * 100000, 16);
     
-        var ESP1_PING_TOPIC = "cpe24mqttdemo/esp1/ping";
-        var ESP2_PING_TOPIC = "cpe24mqttdemo/esp2/ping";
-        var ESP3_PING_TOPIC = "cpe24mqttdemo/esp2/ping";
+        var ESP1_PING_TOPIC = "restaurant/1/ping";
+        var ESP2_PING_TOPIC = "restaurant/2/ping";
+        var ESP3_PING_TOPIC = "restaurant/3/ping";
     
-        var ESP1_LED_TOPIC = "cpe24mqttdemo/esp1/led";
-        var ESP1_SENSOR_TOPIC = "cpe24mqttdemo/esp1/sensor";
+        var ESP1_LED_TOPIC = "restaurant/1/led";
+        var ESP1_SENSOR_TOPIC = "restaurant/1/sensor";
     
-        var ESP2_LED_TOPIC = "cpe24mqttdemo/esp2/led";
-        var ESP2_SENSOR_TOPIC = "cpe24mqttdemo/esp2/sensor";
+        var ESP2_LED_TOPIC = "restaurant/2/led";
+        var ESP2_SENSOR_TOPIC = "restaurant/2/sensor";
     
         var client = new Messaging.Client(hostname, port, clientid);
      
