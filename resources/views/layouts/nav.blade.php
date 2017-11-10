@@ -22,21 +22,29 @@
                         <ul class="list-group">
                             <li class="list-group-item justify-content-between">
                                 All customers
-                                <span class="badge badge-default badge-pill">3</span>
+                                <span class="badge badge-default badge-pill">
+                                    <div id="all-customer">0</div>    
+                                </span>
                             </li>
                             <li class="list-group-item justify-content-between">
                                 In waiting queue
-                                <span class="badge badge-default badge-pill">1</span>
+                                <span class="badge badge-default badge-pill">
+                                    <div id="waiting-Q">0</div>
+                                </span>
                             </li>
                             <li class="list-group-item justify-content-between">
                                 Waiting for order
-                                <span class="badge badge-default badge-pill">2</span>
+                                <span class="badge badge-default badge-pill">
+                                    <div id="waiting-O">0</div>
+                                </span>
                             </li>
                         </ul>
                         <ul class="list-group">
                             <li class="list-group-item justify-content-between">
                                 Today customers
-                                <span class="badge badge-default badge-pill">15</span>
+                                <span class="badge badge-default badge-pill">
+                                    <div id="today-customer">0</div>
+                                </span>
                             </li>
                         </ul>
 

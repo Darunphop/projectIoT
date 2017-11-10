@@ -17,21 +17,38 @@ $(function() {{}
         var esp3_icon = $("#esp3-icon");
         var esp3_status = $("#esp3-status");
         var esp3_panel = $("#esp3-panel");
-    
-    
-    
-        var esp1_sensor_data = [];
-        var esp2_sensor_data = [];
-        var esp3_sensor_data = [];
+
+        var all_customer_num = $("#all-customer");
+        var waiting_q_num = $("#waiting-Q");
+        var waiting_o_num = $("#waiting-O");
+        var today_customer = $("#today-customer");
     
         var esp1_offline = 0;
         var esp2_offline = 0;
         var esp3_offline = 0;
+
+        var waiting_queue = [];
+        var order_queue = [];
+
+        var availible_node = [];
+        var in_ordering_node = [];
+
+        var all_customer = 0;
+
+        var max_availible_order = 2;
     
     
-        // Update Graph
+        // Update 
         var update = function () {
+            all_customer_num.text(availible_node.length);
+            waiting_o_num.text(order_queue.length);
+            waiting_q_num.text(waiting_queue.length);
+            today_customer.text(all_customer);
             
+            if(in_ordering_node.length < max_availible_order){
+
+            }
+
         }
     
         // Boker info
@@ -43,6 +60,12 @@ $(function() {{}
         var ESP1_PING_TOPIC = "restaurant/1/ping";
         var ESP2_PING_TOPIC = "restaurant/2/ping";
         var ESP3_PING_TOPIC = "restaurant/3/ping";
+
+        var ESP1_request = "restaurant/1";
+        var ESP2_request = "restaurant/2";
+        var ESP3_request = "restaurant/3";
+
+        var all_subscribe = "restaurant/#";
     
     
         var client = new Messaging.Client(hostname, port, clientid);
@@ -66,6 +89,8 @@ $(function() {{}
                 client.subscribe(ESP1_PING_TOPIC, {qos: 2});
                 client.subscribe(ESP2_PING_TOPIC, {qos: 2});
                 client.subscribe(ESP3_PING_TOPIC, {qos: 2});
+
+                client.subscribe(all_subscribe, {qos : 2});
     
                 // Set default ping message
                 publish("0", ESP1_PING_TOPIC, 2, true);
@@ -89,6 +114,8 @@ $(function() {{}
         client.onMessageArrived = function (message) {
             var topic = message.destinationName;
             var payload = message.payloadString;
+
+            var target = topic.split("/")[1];
     
             console.log('Topic: ' + topic + '  | ' + payload);
     
@@ -136,9 +163,50 @@ $(function() {{}
                     esp3_offline = 0;
                 }
                 
+            }else if(payload == "reqQ"){
+                enqQ(target);
+            }else if(payload == "reqO"){
+                enqO(target);
+            }else if(payload == "sleep"){
+                sleep(target);
             }
+            update();
         };
     
+        var enqQ = function (i) {
+            var index_find = availible_node.indexOf(i);
+            if(index_find == -1){
+                waiting_queue.push(i);
+                availible_node.push(i);
+                all_customer++;
+            }
+        }
+        var deqQ = function () {
+            return waiting_queue.shift();
+        }
+
+        var enqO = function (i) {
+            order_queue.push(i);
+            var index_find = in_ordering_node.indexOf(i);
+            if(index_find == -1){
+                in_ordering_node.push(i);
+            }
+        }
+        var deqO = function () {
+            return order_queue.shift();
+        }
+
+        var sleep = function (i){
+            var index_to_remove = availible_node.indexOf(i);
+            var index_find = in_ordering_node.indexOf(i);
+            if (index_to_remove > -1) {
+                availible_node.splice(index_to_remove, 1);
+            }
+            if(index_find > -1){
+                in_ordering_node.splice(index_find, 1);
+            }
+        }
+
         //Creates a new Messaging.Message Object and sends it to the HiveMQ MQTT Broker
         var publish = function (payload, topic, qos=2, retained=false) {
             var message = new Messaging.Message(payload);
