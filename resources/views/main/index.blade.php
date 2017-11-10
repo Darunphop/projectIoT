@@ -15,8 +15,7 @@
             @component('components.brokerStatus')
             @endcomponent
             <!-- /.row -->
-            @component('components.sidebar')
-            @endcomponent
+
             <!-- /.row -->
             @component('layouts.queue')
             @endcomponent
