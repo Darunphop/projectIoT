@@ -19,10 +19,6 @@ $(function() {{}
         var esp3_panel = $("#esp3-panel");
     
     
-        // Determine how many data points to keep based on the placeholder's initial size;
-        // this gives us a nice high-res plot while avoiding more than one point per pixel.
-        var totalPoints = container.outerWidth() / 20 || 100;
-        console.log("Chart: max points = "+totalPoints);
     
         var esp1_sensor_data = [];
         var esp2_sensor_data = [];
@@ -164,7 +160,7 @@ $(function() {{}
                 esp1_icon.removeClass("fa-check");
                 esp1_panel.addClass("panel-danger");
                 esp1_panel.removeClass("panel-primary");
-                document.getElementById("esp1-statusC").style.backgroundColor = "#b94a48";
+                document.getElementById("esp1-statusC").style.backgroundColor = "#ad3030";
                 console.log("ESP1: Go Offline");
             }
             if(esp2_offline>3){
@@ -174,12 +170,12 @@ $(function() {{}
                 esp2_icon.removeClass("fa-check");
                 esp2_panel.addClass("panel-danger");
                 esp2_panel.removeClass("panel-primary");
-                document.getElementById("esp2-statusC").style.backgroundColor = "#b94a48";
+                document.getElementById("esp2-statusC").style.backgroundColor = "#ad3030";
                 console.log("ESP2: Go Offline");
             }
             if(esp3_offline>3){
                 esp3_sensor_data = [];
-                document.getElementById("esp3-statusC").style.backgroundColor = "#b94a48";
+                document.getElementById("esp3-statusC").style.backgroundColor = "#ad3030";
                 esp3_status.text("Offline");
                 esp3_icon.addClass("fa-close");
                 esp3_icon.removeClass("fa-check");
