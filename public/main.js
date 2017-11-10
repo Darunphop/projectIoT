@@ -28,8 +28,14 @@ $(function() {{}
         var esp2_led_panel = $("#esp2-led-panel");
         var esp2_led_button = $("#esp2-led-cutton");
     
+        // var esp1_statusColor = $("#esp1-statusC");
+        // var esp2_statusColor = $("#esp2-statusC");
+        // var esp3_statusColor = $("#esp3-statusC");
+
+
         esp1_led_panel.hide();
         esp2_led_panel.hide();
+        // esp3_led_panel.hide();
     
         // Determine how many data points to keep based on the placeholder's initial size;
         // this gives us a nice high-res plot while avoiding more than one point per pixel.
@@ -38,9 +44,11 @@ $(function() {{}
     
         var esp1_sensor_data = [];
         var esp2_sensor_data = [];
+        var esp3_sensor_data = [];
     
         var esp1_led = false;
         var esp2_led = false;
+        var esp3_led = false;
         var esp1_offline = 0;
         var esp2_offline = 0;
         var esp3_offline = 0;
@@ -58,77 +66,77 @@ $(function() {{}
     
         // Update Graph
         var update = function () {
-            $.plot(container, dataset.get(), {
-                grid: {
-                    borderWidth: 1,
-                    minBorderMargin: 20,
-                    labelMargin: 10,
-                    backgroundColor: {
-                        colors: ["#fff", "#e4f4f4"]
-                    },
-                    margin: {
-                        top: 8,
-                        bottom: 20,
-                        left: 20
-                    },
-                    markings: function(axes) {
-                        var markings = [];
-                        var xaxis = axes.xaxis;
-                        for (var x = Math.floor(xaxis.min); x < xaxis.max; x += xaxis.tickSize * 2) {
-                            markings.push({
-                                xaxis: {
-                                    from: x,
-                                    to: x + xaxis.tickSize
-                                },
-                                color: "rgba(232, 232, 255, 0.2)"
-                            });
-                        }
-                        return markings;
-                    }
-                },
-                legend: {        
-                    labelBoxBorderColor: "#fff"
-                },
-                series: {
-                    points: {
-                        show: true
-                    },
-                    lines: {
-                        show: true,
-                        lineWidth: 1.2,
-                        fill: true
-                    },
-                    grid: {
-                        hoverable: true
-                    }
-                },
-                yaxis: {
-                    min: 0,
-                    max: 1024
-                },
-                xaxis: {
-                    mode: "time",
-                    tickSize: [2, "second"],
-                    tickFormatter: function (v, axis) {
-                        var date = new Date(v);
+            // $.plot(container, dataset.get(), {
+            //     grid: {
+            //         borderWidth: 1,
+            //         minBorderMargin: 20,
+            //         labelMargin: 10,
+            //         backgroundColor: {
+            //             colors: ["#fff", "#e4f4f4"]
+            //         },
+            //         margin: {
+            //             top: 8,
+            //             bottom: 20,
+            //             left: 20
+            //         },
+            //         markings: function(axes) {
+            //             var markings = [];
+            //             var xaxis = axes.xaxis;
+            //             for (var x = Math.floor(xaxis.min); x < xaxis.max; x += xaxis.tickSize * 2) {
+            //                 markings.push({
+            //                     xaxis: {
+            //                         from: x,
+            //                         to: x + xaxis.tickSize
+            //                     },
+            //                     color: "rgba(232, 232, 255, 0.2)"
+            //                 });
+            //             }
+            //             return markings;
+            //         }
+            //     },
+            //     legend: {        
+            //         labelBoxBorderColor: "#fff"
+            //     },
+            //     series: {
+            //         points: {
+            //             show: true
+            //         },
+            //         lines: {
+            //             show: true,
+            //             lineWidth: 1.2,
+            //             fill: true
+            //         },
+            //         grid: {
+            //             hoverable: true
+            //         }
+            //     },
+            //     yaxis: {
+            //         min: 0,
+            //         max: 1024
+            //     },
+            //     xaxis: {
+            //         mode: "time",
+            //         tickSize: [2, "second"],
+            //         tickFormatter: function (v, axis) {
+            //             var date = new Date(v);
                  
-                        if (date.getSeconds() % 5 == 0) {
-                            var hours = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
-                            var minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
-                            var seconds = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
+            //             if (date.getSeconds() % 5 == 0) {
+            //                 var hours = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+            //                 var minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+            //                 var seconds = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
                  
-                            return hours + ":" + minutes + ":" + seconds;
-                        } else {
-                            return " ";
-                        }
-                    },
-                    axisLabel: "Time",
-                    axisLabelUseCanvas: true,
-                    axisLabelFontSizePixels: 12,
-                    axisLabelFontFamily: 'Verdana, Arial',
-                    axisLabelPadding: 10
-                },
-            });
+            //                 return hours + ":" + minutes + ":" + seconds;
+            //             } else {
+            //                 return " ";
+            //             }
+            //         },
+            //         axisLabel: "Time",
+            //         axisLabelUseCanvas: true,
+            //         axisLabelFontSizePixels: 12,
+            //         axisLabelFontFamily: 'Verdana, Arial',
+            //         axisLabelPadding: 10
+            //     },
+            // });
         }
     
         // Boker info
@@ -259,6 +267,7 @@ $(function() {{}
                     if(esp1_offline>3) {
                         console.log("ESP1: Online");
                     }
+                    document.getElementById("esp1-statusC").style.backgroundColor = "#72c17d";
                     esp1_status.text("Online");
                     esp1_icon.removeClass("fa-close");
                     esp1_icon.addClass("fa-check");
@@ -274,6 +283,7 @@ $(function() {{}
                     if(esp2_offline>3) {
                         console.log("ESP2: Online");
                     }
+                    document.getElementById("esp2-statusC").style.backgroundColor = "#72c17d";
                     esp2_status.text("Online");
                     esp2_icon.removeClass("fa-close");
                     esp2_icon.addClass("fa-check");
@@ -288,6 +298,7 @@ $(function() {{}
                     if(esp3_offline>3) {
                         console.log("ESP3: Online");
                     }
+                    document.getElementById("esp3-statusC").style.backgroundColor = "#72c17d";
                     esp3_status.text("Online");
                     esp3_icon.removeClass("fa-close");
                     esp3_icon.addClass("fa-check");
@@ -330,6 +341,7 @@ $(function() {{}
                 esp1_panel.addClass("panel-danger");
                 esp1_panel.removeClass("panel-primary");
                 esp1_led_panel.fadeOut();
+                document.getElementById("esp1-statusC").style.backgroundColor = "#b94a48";
                 console.log("ESP1: Go Offline");
             }
             if(esp2_offline>3){
@@ -340,10 +352,12 @@ $(function() {{}
                 esp2_panel.addClass("panel-danger");
                 esp2_panel.removeClass("panel-primary");
                 esp2_led_panel.fadeOut();
+                document.getElementById("esp2-statusC").style.backgroundColor = "#b94a48";
                 console.log("ESP2: Go Offline");
             }
             if(esp3_offline>3){
                 esp3_sensor_data = [];
+                document.getElementById("esp3-statusC").style.backgroundColor = "#b94a48";
                 esp3_status.text("Offline");
                 esp3_icon.addClass("fa-close");
                 esp3_icon.removeClass("fa-check");
