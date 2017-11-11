@@ -189,6 +189,8 @@ $(function() {{}
                 enqQ(target);
             }else if(payload == "reqO"){
                 enqO(target);
+            }else if(payload == "deqO"){
+                deqO(target);
             }else if(payload == "sleep"){
                 sleep(target);
             }
@@ -208,14 +210,25 @@ $(function() {{}
         }
 
         var enqO = function (i) {
-            order_queue.push(i);
+            if(order_queue.length != 0){
+                var last_element = order_queue.pop();
+                order_queue.push(last_element);
+                if(last_element != i){
+                    order_queue.push(i);
+                }
+            }else{
+                order_queue.push(i);
+            }
             var index_find = in_ordering_node.indexOf(i);
             if(index_find == -1){
                 in_ordering_node.push(i);
             }
         }
-        var deqO = function () {
-            return order_queue.shift();
+        var deqO = function (i) {
+            var deq_index = order_queue.indexOf(i);
+            if(deq_index > -1){
+                order_queue.splice(deq_index, 1);
+            }
         }
 
         var sleep = function (i){
