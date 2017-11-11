@@ -53,6 +53,7 @@ $(function() {{}
                 enqO(toEnq);
                 publish("ready", "restaurant/"+toEnq, 2, true);
             }
+            updateQueue();
             updateOrder();
 
 
@@ -62,6 +63,13 @@ $(function() {{}
             document.getElementById("order-list").innerHTML = "";
             order_queue.forEach(function(order) {
                 document.getElementById("order-list").innerHTML += "<a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-shopping-cart fa-fw\"></i> Client "+ order +"<span class=\"pull-right text-muted small\"><em>9:52 AM</em></span></a>"; 
+            });
+        }
+
+        var updateQueue = function (){
+            document.getElementById("queue-list").innerHTML = "";
+            waiting_queue.forEach(function(queue) {
+                document.getElementById("queue-list").innerHTML += "<a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-comment fa-fw\"></i> Client "+ queue +"<span class=\"pull-right text-muted small\"><em>4 minutes ago</em></span></a>";
             });
         }
     
