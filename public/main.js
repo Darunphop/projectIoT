@@ -55,6 +55,18 @@ $(function() {{}
             }
             updateQueue();
             updateOrder();
+            
+            if(availible_node.length > 0){
+                availible_node.forEach(function (node){
+                    is_in_q = waiting_queue.indexOf(node);
+                    if(is_in_q > -1){
+                        publish("you are at Queue : "+(is_in_q+1), "restaurant/"+node+"/q", 2, true);
+                    }else{
+                        in_O = order_queue.indexOf(node);
+                        publish("you are at Queue : "+(in_O+1), "restaurant/"+node+"/q", 2, true);
+                    }
+                });
+            }
 
 
         }
@@ -87,6 +99,10 @@ $(function() {{}
         var ESP2_request = "restaurant/2";
         var ESP3_request = "restaurant/3";
 
+        var ESP1_qup = "restaurant/1/q";
+        var ESP2_qup = "restaurant/2/q";
+        var ESP3_qup = "restaurant/3/q";
+
         var all_subscribe = "restaurant/#";
     
     
@@ -112,7 +128,11 @@ $(function() {{}
                 client.subscribe(ESP2_PING_TOPIC, {qos: 2});
                 client.subscribe(ESP3_PING_TOPIC, {qos: 2});
 
-                client.subscribe(all_subscribe, {qos : 2});
+                // client.subscribe(all_subscribe, {qos : 2});
+
+                client.subscribe(ESP1_request, {qos : 2});
+                client.subscribe(ESP2_request, {qos : 2});
+                client.subscribe(ESP3_request, {qos : 2});
     
                 // Set default ping message
                 publish("0", ESP1_PING_TOPIC, 2, true);
