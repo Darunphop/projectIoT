@@ -36,7 +36,7 @@ def onmessage(topic, message):
         time.sleep_ms(1)
 
   if state == 3:
-#    while state != 4:
+   # while state != 4:
     while state == 3:
         oled.clear()
         oled.text(str('PRESS BUTTON TO'),0,0)
@@ -44,8 +44,7 @@ def onmessage(topic, message):
         if (check_state() == 1 and check_alive() != 1):
             mqtt.publish('restaurant/1',str('reqO'),retain=True)
             state = 4
-        else:
-            if (check_state() == 0 and check_alive() == 1):
+        elif (check_state() != 1 and check_alive() == 1):
                 mqtt.publish('restaurant/1',str('Out'),retain=True)
                 state = 6
         time.sleep_ms(2)
@@ -64,13 +63,13 @@ def onmessage(topic, message):
     state = 3
     mqtt.publish('restaurant/1',str('reset'),retain=True)
   if state == 6:
-	while check_alive() != 1:
+    while check_alive() != 1:
         oled.clear()
-		oled.text(str('Press Bottom'),0,0)
-		oled.text(str('To Start'),0,8)
-		mqtt.publish('restaurant/1',str('I am Alive'),retain=True)
-	mqtt.publish('restaurant/1',str('I am Ready'),retain=True)
-	state = 1
+        oled.text(str('Press Bottom'),0,0)
+        oled.text(str('To Start'),0,8)
+        mqtt.publish('restaurant/1',str('I am Alive'),retain=True)
+    mqtt.publish('restaurant/1',str('I am Ready'),retain=True)
+    state = 1
 
 ifstate = {}
 def state_has_changed(text, boolean):
