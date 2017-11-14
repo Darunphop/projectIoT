@@ -33,6 +33,12 @@
                                 </span>
                             </li>
                             <li class="list-group-item justify-content-between">
+                                Customers in restaurant
+                                <span class="badge badge-default badge-pill">
+                                    <div id="want-to-order">0</div>
+                                </span>
+                            </li>
+                            <li class="list-group-item justify-content-between">
                                 Waiting for order
                                 <span class="badge badge-default badge-pill">
                                     <div id="waiting-O">0</div>

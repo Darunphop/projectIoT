@@ -21,6 +21,7 @@ $(function() {{}
         var all_customer_num = $("#all-customer");
         var waiting_q_num = $("#waiting-Q");
         var waiting_o_num = $("#waiting-O");
+        var want_to_order = $("#want-to-order");
         var today_customer = $("#today-customer");
 
         var order_list = $("#order-list");
@@ -46,11 +47,12 @@ $(function() {{}
             all_customer_num.text(availible_node.length);
             waiting_o_num.text(order_queue.length);
             waiting_q_num.text(waiting_queue.length);
+            want_to_order.text(in_ordering_node.length)
             today_customer.text(all_customer);
             
             if(waiting_queue!=0 && in_ordering_node.length < max_availible_order){
-                var toEnq = deqQ();
-                enqO(toEnq);
+                var toEnq = waiting_queue[0];
+                in_ordering_node.push(toEnq);
                 publish("ready", "restaurant/"+toEnq, 2, true);
             }
             updateQueue();
@@ -60,10 +62,14 @@ $(function() {{}
                 availible_node.forEach(function (node){
                     is_in_q = waiting_queue.indexOf(node);
                     if(is_in_q > -1){
-                        publish("you are at Queue : "+(is_in_q+1), "restaurant/"+node+"/q", 2, true);
+                        publish(is_in_q+1, "restaurant/"+node, 2, true);
                     }else{
                         in_O = order_queue.indexOf(node);
-                        publish("you are at Queue : "+(in_O+1), "restaurant/"+node+"/q", 2, true);
+                        if(in_O == 0){
+                            publish("ready", "restaurant/"+node, 2, true);
+                        }else{
+                            publish(in_O+1, "restaurant/"+node, 2, true);
+                        }
                     }
                 });
             }
@@ -74,7 +80,7 @@ $(function() {{}
         var updateOrder = function (){
             document.getElementById("order-list").innerHTML = "";
             order_queue.forEach(function(order) {
-                document.getElementById("order-list").innerHTML += "<a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-shopping-cart fa-fw\"></i> Client "+ order +"<span class=\"pull-right text-muted small\"><em>9:52 AM</em></span></a>"; 
+                document.getElementById("order-list").innerHTML += "<a href=\"#\" class=\"list-group-item\" onclick=\"clickToClear(order)\"><i class=\"fa fa-shopping-cart fa-fw\"></i> Client "+ order +"<span class=\"pull-right text-muted small\"><em>9:52 AM</em></span></a>"; 
             });
         }
 
@@ -83,6 +89,11 @@ $(function() {{}
             waiting_queue.forEach(function(queue) {
                 document.getElementById("queue-list").innerHTML += "<a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-comment fa-fw\"></i> Client "+ queue +"<span class=\"pull-right text-muted small\"><em>4 minutes ago</em></span></a>";
             });
+        }
+
+        var clickToClear = function (order){
+            deqO(order);
+            publish("deqOK", "restaurant/"+order, 2, true);
         }
     
         // Boker info
@@ -95,13 +106,13 @@ $(function() {{}
         var ESP2_PING_TOPIC = "restaurant/2/ping";
         var ESP3_PING_TOPIC = "restaurant/3/ping";
 
-        var ESP1_request = "restaurant/1";
-        var ESP2_request = "restaurant/2";
-        var ESP3_request = "restaurant/3";
+        var ESP1_request = "restaurant/1/req";
+        var ESP2_request = "restaurant/2/req";
+        var ESP3_request = "restaurant/3/req";
 
-        var ESP1_qup = "restaurant/1/q";
-        var ESP2_qup = "restaurant/2/q";
-        var ESP3_qup = "restaurant/3/q";
+        var ESP1_qup = "restaurant/1";
+        var ESP2_qup = "restaurant/2";
+        var ESP3_qup = "restaurant/3";
 
         var all_subscribe = "restaurant/#";
     
@@ -162,61 +173,36 @@ $(function() {{}
             console.log('Topic: ' + topic + '  | ' + payload);
     
             
-            if(topic == ESP1_PING_TOPIC) {
-                if(payload == "iamalive") {
-                    if(esp1_offline>3) {
-                        console.log("ESP1: Online");
-                    }
-                    document.getElementById("esp1-statusC").style.backgroundColor = "#72c17d";
-                    esp1_status.text("Online");
-                    esp1_icon.removeClass("fa-close");
-                    esp1_icon.addClass("fa-check");
-                    esp1_panel.removeClass("panel-danger");
-                    esp1_panel.addClass("panel-primary");
-                    esp1_offline = 0;
-                }
+            goOnline(target);
     
                 
-            }else if(topic == ESP2_PING_TOPIC) {
-                if(payload == "iamalive") {
-                    if(esp2_offline>3) {
-                        console.log("ESP2: Online");
-                    }
-                    document.getElementById("esp2-statusC").style.backgroundColor = "#72c17d";
-                    esp2_status.text("Online");
-                    esp2_icon.removeClass("fa-close");
-                    esp2_icon.addClass("fa-check");
-                    esp2_panel.removeClass("panel-danger");
-                    esp2_panel.addClass("panel-primary");
-                    esp2_offline = 0;
-                }
-                
-            }else if(topic == ESP3_PING_TOPIC) {
-                if(payload == "iamalive") {
-                    if(esp3_offline>3) {
-                        console.log("ESP3: Online");
-                    }
-                    document.getElementById("esp3-statusC").style.backgroundColor = "#72c17d";
-                    esp3_status.text("Online");
-                    esp3_icon.removeClass("fa-close");
-                    esp3_icon.addClass("fa-check");
-                    esp3_panel.removeClass("panel-danger");
-                    esp3_panel.addClass("panel-primary");
-                    esp3_offline = 0;
-                }
-                
-            }else if(payload == "reqQ"){
+            if(payload == "reqQ"){
                 enqQ(target);
             }else if(payload == "reqO"){
                 enqO(target);
+                publish("reqOK", "restaurant/"+target, 2, true);
             }else if(payload == "deqO"){
                 deqO(target);
+                publish("deqOK", "restaurant/"+target, 2, true);
+            }else if(payload == "deqQ"){
+                deqQ()
+                publish("deqOK", "restaurant/"+target, 2, true);
             }else if(payload == "sleep"){
                 sleep(target);
             }
             update();
         };
     
+        var goOnline = function (node){
+            document.getElementById("esp"+node+"-statusC").style.backgroundColor = "#72c17d";
+            esp1_status.text("Online");
+            esp1_icon.removeClass("fa-close");
+            esp1_icon.addClass("fa-check");
+            esp1_panel.removeClass("panel-danger");
+            esp1_panel.addClass("panel-primary");
+            esp1_offline = 0;
+        }
+
         var enqQ = function (i) {
             var index_find = availible_node.indexOf(i);
             if(index_find == -1){
@@ -272,12 +258,12 @@ $(function() {{}
         }
     
         var offline_check = function() {
+            var offlineTime = 10;
             esp1_offline++;
             esp2_offline++;
             esp3_offline++;
 
-            if(esp1_offline>3){
-                esp1_sensor_data = [];
+            if(esp1_offline>offlineTime){
                 esp1_status.text("Offline");
                 esp1_icon.addClass("fa-close");
                 esp1_icon.removeClass("fa-check");
@@ -286,8 +272,7 @@ $(function() {{}
                 document.getElementById("esp1-statusC").style.backgroundColor = "#ad3030";
                 console.log("ESP1: Go Offline");
             }
-            if(esp2_offline>3){
-                esp2_sensor_data = [];
+            if(esp2_offline>offlineTime){
                 esp2_status.text("Offline");
                 esp2_icon.addClass("fa-close");
                 esp2_icon.removeClass("fa-check");
@@ -296,8 +281,7 @@ $(function() {{}
                 document.getElementById("esp2-statusC").style.backgroundColor = "#ad3030";
                 console.log("ESP2: Go Offline");
             }
-            if(esp3_offline>3){
-                esp3_sensor_data = [];
+            if(esp3_offline>offlineTime){
                 document.getElementById("esp3-statusC").style.backgroundColor = "#ad3030";
                 esp3_status.text("Offline");
                 esp3_icon.addClass("fa-close");
