@@ -41,6 +41,7 @@ $(function() {{}
 
         var max_availible_order = 2;
     
+        setInterval(update, 1000);
     
         // Update 
         var update = function () {
@@ -50,10 +51,10 @@ $(function() {{}
             want_to_order.text(in_ordering_node.length)
             today_customer.text(all_customer);
             
-            if(waiting_queue!=0 && in_ordering_node.length < max_availible_order){
+            if(waiting_queue.length!=0 && in_ordering_node.length < max_availible_order){
                 var toEnq = waiting_queue[0];
                 in_ordering_node.push(toEnq);
-                publish("ready", "restaurant/"+toEnq, 2, true);
+                publish("readyQ", "restaurant/"+toEnq, 2, true);
             }
             updateQueue();
             updateOrder();
@@ -66,14 +67,14 @@ $(function() {{}
                     }else{
                         in_O = order_queue.indexOf(node);
                         if(in_O == 0){
-                            publish("ready", "restaurant/"+node, 2, true);
+                            publish("readyO", "restaurant/"+node, 2, true);
                         }else{
                             publish(in_O+1, "restaurant/"+node, 2, true);
                         }
                     }
                 });
             }
-
+            publish("update", "restaurant/", 2, true);
 
         }
 
@@ -135,9 +136,9 @@ $(function() {{}
     
                 // Subscibe TOPIC
                 // Ping Pong. Checking esp is alive?
-                client.subscribe(ESP1_PING_TOPIC, {qos: 2});
-                client.subscribe(ESP2_PING_TOPIC, {qos: 2});
-                client.subscribe(ESP3_PING_TOPIC, {qos: 2});
+                // client.subscribe(ESP1_PING_TOPIC, {qos: 2});
+                // client.subscribe(ESP2_PING_TOPIC, {qos: 2});
+                // client.subscribe(ESP3_PING_TOPIC, {qos: 2});
 
                 // client.subscribe(all_subscribe, {qos : 2});
 
@@ -146,9 +147,9 @@ $(function() {{}
                 client.subscribe(ESP3_request, {qos : 2});
     
                 // Set default ping message
-                publish("0", ESP1_PING_TOPIC, 2, true);
-                publish("0", ESP2_PING_TOPIC, 2, true);
-                publish("0", ESP3_PING_TOPIC, 2, true);
+                // publish("0", ESP1_PING_TOPIC, 2, true);
+                // publish("0", ESP2_PING_TOPIC, 2, true);
+                // publish("0", ESP3_PING_TOPIC, 2, true);
             },
     
             //Gets Called if the connection could not be established
@@ -190,7 +191,7 @@ $(function() {{}
             }else if(payload == "sleep"){
                 sleep(target);
             }
-            update();
+            // update();
         };
     
         var goOnline = function (node){
@@ -225,10 +226,10 @@ $(function() {{}
             }else{
                 order_queue.push(i);
             }
-            var index_find = in_ordering_node.indexOf(i);
-            if(index_find == -1){
-                in_ordering_node.push(i);
-            }
+            // var index_find = in_ordering_node.indexOf(i);
+            // if(index_find == -1){
+            //     in_ordering_node.push(i);
+            // }
         }
         var deqO = function (i) {
             var deq_index = order_queue.indexOf(i);
@@ -293,5 +294,6 @@ $(function() {{}
         };
     
         setInterval(offline_check, 1000);
+
     
     });
