@@ -4,6 +4,9 @@ from machine import ADC,unique_id
 CLIENT_ID = ubinascii.hexlify(unique_id())
 mqtt = MQTTClient.MQTTClient(CLIENT_ID,"broker.mqtt-cpe.ml",user="None",password="None")
 
+nodeNumder = 1
+reqAddress = "restaurant/"+nodeNumber+'/req'
+
 def onmessage(topic, message):
   global state
   global queueQ
@@ -14,7 +17,6 @@ def onmessage(topic, message):
   except ValueError:
     pass
   if state == 1:
-    # mqtt.publish('restaurant/1/ping',str('iamalive'),retain=True)
     queueQ = message
     oled.clear()
     oled.text(str('YOUR QUEUE IS : '),0,0)
@@ -132,9 +134,17 @@ def main():
 
   mqtt.set_callback(onmessage)
   mqtt.connect()
-  mqtt.subscribe(b'restaurant/1')
+  mqtt.subscribe(b'restaurant/'+nodeNumber)
   while True:
-    if True:
-      mqtt.wait_msg()
-    else:
-      mqtt.check_msg()
+    if state == 0:
+      oled.clear()
+      oled.text(str('Press Button'),0,0)
+      oled.text(str('TO GET QUEUE'),0,8)
+      while check_state() != 1:
+        pass
+      mqtt.publish(reqAddress,str('reqQ'),retain=True)
+    if state == 1:
+      
+    mqtt.check_msg()
+    # mqtt.wait_msg()
+    

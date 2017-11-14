@@ -1,4 +1,4 @@
-$(function() {{}
+$(function() {
     
         var container = $("#live-chart");
     
@@ -39,49 +39,62 @@ $(function() {{}
 
         var all_customer = 0;
 
-        var max_availible_order = 2;
+        var max_availible_order = 1;
     
-        setInterval(update, 1000);
+        
     
         // Update 
         var update = function () {
-            all_customer_num.text(availible_node.length);
+            if(waiting_queue.length!=0 && in_ordering_node.length < max_availible_order){
+                var toEnq = deqQ();
+                // var toEnq = waiting_queue[0];
+                in_ordering_node.push(toEnq);
+                publish("readyQ", "Restaurant/"+toEnq, 2, true);
+            }
+
+            all_customer_num.text(availible_node);
             waiting_o_num.text(order_queue.length);
             waiting_q_num.text(waiting_queue.length);
             want_to_order.text(in_ordering_node.length)
             today_customer.text(all_customer);
             
-            if(waiting_queue.length!=0 && in_ordering_node.length < max_availible_order){
-                var toEnq = waiting_queue[0];
-                in_ordering_node.push(toEnq);
-                publish("readyQ", "restaurant/"+toEnq, 2, true);
+
+            // publish("Q"+order_queue, "Restaurant/q", 2, true);
+            if(availible_node.length > 0){
+                availible_node.forEach(function (node){
+                    var is_in_q = waiting_queue.indexOf(node);
+                    var in_O = order_queue.indexOf(node);
+                    if(is_in_q > -1){
+            //             // alert("is on q "+is_in_q);
+                        publish(""+is_in_q, "Restaurant/"+node, 2, true);
+                    }else if(in_O > -1){
+            //             // alert("in o "+in_O);
+                        
+            //             // if(in_O == 0){
+                        publish(""+in_O, "Restaurant/"+node, 2, true);
+            //             // }else{
+            //             //     publish(in_O+1, "Restaurant/"+node, 2, true);
+            //             // }
+                        // publish(in_O, "Restaurant/"+node, 2, true);
+                        // publish("HELP"+in_O, "Restaurant/"+node, 2, true);
+                    }
+            // publish("HELP"+is_in_q, "Restaurant/"+node, 2, true);
+                });
+            
             }
+
             updateQueue();
             updateOrder();
             
-            if(availible_node.length > 0){
-                availible_node.forEach(function (node){
-                    is_in_q = waiting_queue.indexOf(node);
-                    if(is_in_q > -1){
-                        publish(is_in_q+1, "restaurant/"+node, 2, true);
-                    }else{
-                        in_O = order_queue.indexOf(node);
-                        if(in_O == 0){
-                            publish("readyO", "restaurant/"+node, 2, true);
-                        }else{
-                            publish(in_O+1, "restaurant/"+node, 2, true);
-                        }
-                    }
-                });
-            }
-            publish("update", "restaurant/", 2, true);
+
+            // offline_check();
 
         }
 
         var updateOrder = function (){
             document.getElementById("order-list").innerHTML = "";
             order_queue.forEach(function(order) {
-                document.getElementById("order-list").innerHTML += "<a href=\"#\" class=\"list-group-item\" onclick=\"clickToClear(order)\"><i class=\"fa fa-shopping-cart fa-fw\"></i> Client "+ order +"<span class=\"pull-right text-muted small\"><em>9:52 AM</em></span></a>"; 
+                document.getElementById("order-list").innerHTML += "<a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-shopping-cart fa-fw\"></i> Client "+ order +"<span class=\"pull-right text-muted small\"><em>9:52 AM</em></span></a>";
             });
         }
 
@@ -94,7 +107,7 @@ $(function() {{}
 
         var clickToClear = function (order){
             deqO(order);
-            publish("deqOK", "restaurant/"+order, 2, true);
+            publish("deqOK", "Restaurant/"+order, 2, true);
         }
     
         // Boker info
@@ -103,19 +116,19 @@ $(function() {{}
         var port = 9001;
         var clientid = "cpe24-projectG2-"+parseInt(Math.random() * 100000, 16);
     
-        var ESP1_PING_TOPIC = "restaurant/1/ping";
-        var ESP2_PING_TOPIC = "restaurant/2/ping";
-        var ESP3_PING_TOPIC = "restaurant/3/ping";
+        var ESP1_PING_TOPIC = "Restaurant/1/ping";
+        var ESP2_PING_TOPIC = "Restaurant/2/ping";
+        var ESP3_PING_TOPIC = "Restaurant/3/ping";
 
-        var ESP1_request = "restaurant/1/req";
-        var ESP2_request = "restaurant/2/req";
-        var ESP3_request = "restaurant/3/req";
+        var ESP1_request = "Restaurant/1/req";
+        var ESP2_request = "Restaurant/2/req";
+        var ESP3_request = "Restaurant/3/req";
 
-        var ESP1_qup = "restaurant/1";
-        var ESP2_qup = "restaurant/2";
-        var ESP3_qup = "restaurant/3";
+        var ESP1_qup = "Restaurant/1";
+        var ESP2_qup = "Restaurant/2";
+        var ESP3_qup = "Restaurant/3";
 
-        var all_subscribe = "restaurant/#";
+        var all_subscribe = "Restaurant/#";
     
     
         var client = new Messaging.Client(hostname, port, clientid);
@@ -156,7 +169,7 @@ $(function() {{}
             onFailure: function (message) {
                 console.log("Connection failed: " + message.errorMessage);
                 mqtt_status.text("ERROR");
-            },
+            }
     
         };
          
@@ -174,24 +187,26 @@ $(function() {{}
             console.log('Topic: ' + topic + '  | ' + payload);
     
             
-            goOnline(target);
+            // goOnline(target);
     
-                
-            if(payload == "reqQ"){
-                enqQ(target);
-            }else if(payload == "reqO"){
-                enqO(target);
-                publish("reqOK", "restaurant/"+target, 2, true);
-            }else if(payload == "deqO"){
-                deqO(target);
-                publish("deqOK", "restaurant/"+target, 2, true);
-            }else if(payload == "deqQ"){
-                deqQ()
-                publish("deqOK", "restaurant/"+target, 2, true);
-            }else if(payload == "sleep"){
-                sleep(target);
+            if(topic.split("/")[2] == "req"){
+                if(payload == "reqQa"){
+                    // alert(payload);
+                    enqQ(target);
+                }else if(payload == "reqO"){
+                    enqO(target);
+                    // publish("reqOK", "Restaurant/"+target, 2, true);
+                }else if(payload == "deqO"){
+                    deqO(target);
+                    // publish("deqOK", "Restaurant/"+target, 2, true);
+                }else if(payload == "deqQ"){
+                    deqQ();
+                    // publish("deqOK", "Restaurant/"+target, 2, true);
+                }else if(payload == "sleep"){
+                    sleep(target);
+                }
             }
-            // update();
+            update();
         };
     
         var goOnline = function (node){
@@ -293,7 +308,8 @@ $(function() {{}
             }
         };
     
-        setInterval(offline_check, 1000);
+        // setInterval(offline_check, 1000);
+        // setInterval(update, 1000);
 
     
     });
