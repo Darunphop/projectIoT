@@ -52,36 +52,36 @@ $(function() {
                 var toEnq = deqQ();
                 // var toEnq = waiting_queue[0];
                 in_ordering_node.push(toEnq);
-                publish("readyQ", "Restaurant/"+toEnq, 2, true);
+                publish("readyQ", "Restaurant1/"+toEnq, 2, false);
             }
 
-            all_customer_num.text(availible_node);
+            all_customer_num.text(availible_node.length);
             waiting_o_num.text(order_queue.length);
             waiting_q_num.text(waiting_queue.length);
             want_to_order.text(in_ordering_node.length)
             today_customer.text(all_customer);
             
 
-            // publish("Q"+order_queue, "Restaurant/q", 2, true);
+            // publish("Q"+order_queue, "Restaurant1/q", 2, false);
             if(availible_node.length > 0){
                 availible_node.forEach(function (node){
                     var is_in_q = waiting_queue.indexOf(node);
                     var in_O = order_queue.indexOf(node);
                     if(is_in_q > -1){
             //             // alert("is on q "+is_in_q);
-                        publish(""+is_in_q, "Restaurant/"+node, 2, true);
+                        publish(""+(is_in_q+1), "Restaurant1/"+node, 2, false);
                     }else if(in_O > -1){
             //             // alert("in o "+in_O);
                         
             //             // if(in_O == 0){
-                        publish(""+in_O, "Restaurant/"+node, 2, true);
+                        publish(""+(in_O+1), "Restaurant1/"+node, 2, false);
             //             // }else{
-            //             //     publish(in_O+1, "Restaurant/"+node, 2, true);
+            //             //     publish(in_O+1, "Restaurant1/"+node, 2, false);
             //             // }
-                        // publish(in_O, "Restaurant/"+node, 2, true);
-                        // publish("HELP"+in_O, "Restaurant/"+node, 2, true);
+                        // publish(in_O, "Restaurant1/"+node, 2, false);
+                        // publish("HELP"+in_O, "Restaurant1/"+node, 2, false);
                     }
-            // publish("HELP"+is_in_q, "Restaurant/"+node, 2, true);
+            // publish("HELP"+is_in_q, "Restaurant1/"+node, 2, false);
                 });
             
             }
@@ -154,7 +154,7 @@ $(function() {
 
         var clickToClear = function (order){
             deqO(order);
-            publish("deqOK", "Restaurant/"+order, 2, true);
+            publish("deqOK", "Restaurant1/"+order, 2, false);
         }
     
         // Boker info
@@ -163,19 +163,19 @@ $(function() {
         var port = 9001;
         var clientid = "cpe24-projectG2-"+parseInt(Math.random() * 100000, 16);
     
-        var ESP1_PING_TOPIC = "Restaurant/1/ping";
-        var ESP2_PING_TOPIC = "Restaurant/2/ping";
-        var ESP3_PING_TOPIC = "Restaurant/3/ping";
+        var ESP1_PING_TOPIC = "Restaurant1/1/ping";
+        var ESP2_PING_TOPIC = "Restaurant1/2/ping";
+        var ESP3_PING_TOPIC = "Restaurant1/3/ping";
 
-        var ESP1_request = "Restaurant/1/req";
-        var ESP2_request = "Restaurant/2/req";
-        var ESP3_request = "Restaurant/3/req";
+        var ESP1_request = "Restaurant1/1/req";
+        var ESP2_request = "Restaurant1/2/req";
+        var ESP3_request = "Restaurant1/3/req";
 
-        var ESP1_qup = "Restaurant/1";
-        var ESP2_qup = "Restaurant/2";
-        var ESP3_qup = "Restaurant/3";
+        var ESP1_qup = "Restaurant1/1";
+        var ESP2_qup = "Restaurant1/2";
+        var ESP3_qup = "Restaurant1/3";
 
-        var all_subscribe = "Restaurant/#";
+        var all_subscribe = "Restaurant1/#";
     
     
         var client = new Messaging.Client(hostname, port, clientid);
@@ -206,12 +206,12 @@ $(function() {
                 // client.subscribe(ESP2_request, {qos : 2});
                 // client.subscribe(ESP3_request, {qos : 2});
 
-                client.subscribe("Restaurant/+/req", {qos : 2});
+                client.subscribe("Restaurant1/+/req", {qos : 2});
     
                 // Set default ping message
-                // publish("0", ESP1_PING_TOPIC, 2, true);
-                // publish("0", ESP2_PING_TOPIC, 2, true);
-                // publish("0", ESP3_PING_TOPIC, 2, true);
+                // publish("0", ESP1_PING_TOPIC, 2, false);
+                // publish("0", ESP2_PING_TOPIC, 2, false);
+                // publish("0", ESP3_PING_TOPIC, 2, false);
             },
     
             //Gets Called if the connection could not be established
@@ -244,13 +244,13 @@ $(function() {
                     enqQ(target);
                 }else if(payload == "reqO"){
                     enqO(target);
-                    // publish("reqOK", "Restaurant/"+target, 2, true);
+                    // publish("reqOK", "Restaurant1/"+target, 2, false);
                 }else if(payload == "deqO"){
                     deqO(target);
-                    // publish("deqOK", "Restaurant/"+target, 2, true);
+                    // publish("deqOK", "Restaurant1/"+target, 2, false);
                 }else if(payload == "deqQ"){
                     deqQ();
-                    // publish("deqOK", "Restaurant/"+target, 2, true);
+                    // publish("deqOK", "Restaurant1/"+target, 2, false);
                 }else if(payload == "sleep"){
                     sleep(target);
                 }
