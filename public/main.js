@@ -138,14 +138,18 @@ $(function() {
 
         var nodeStatus = function (entry){
             var status;
+            var bgColor;
             if(waiting_queue.indexOf(entry) != -1){
                 status = "InQueue";
+                bgColor = "#c1935b";
             }else if(order_queue.indexOf(entry) != -1){
                 status = "Ordering";
+                bgColor = "#4da886";
             }else{
                 status = "Ready";
+                bgColor = "#59964f";
             }
-            return "<li class=\"list-group-item justify-content-between\">Node "+ entry +"<span class=\"badge badge-default badge-pill\" id=\"esp3-statusC\"><div id=\"esp3-status\">"+ status +"</div></span></li>";
+            return "<li class=\"list-group-item justify-content-between\">Node "+ entry +"<span class=\"badge badge-default badge-pill\" id=\"esp"+ entry +"-statusC\" style=\"background-color:"+ bgColor +"\"><div id=\"esp3-status\">"+ status +"</div></span></li>";
         }
 
         var clickToClear = function (order){
