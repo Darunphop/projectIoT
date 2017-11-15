@@ -34,6 +34,9 @@ $(function() {
         var waiting_queue = [];
         var order_queue = [];
 
+        var o_timestamp = [];
+        var q_timestamp = [];
+
         var availible_node = [];
         var in_ordering_node = [];
 
@@ -91,17 +94,36 @@ $(function() {
 
         }
 
+        var getTime = function (){
+            var currentdate = new Date(); 
+            var datetime = ""   
+            + pad(currentdate.getHours(), 2) + ":"  
+            + pad(currentdate.getMinutes(), 2) + ":" 
+            + pad(currentdate.getSeconds(), 2);
+            return datetime;
+        }
+        
+        var pad = function (n, width, z) {
+            z = z || '0';
+            n = n + '';
+            return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+        }
+
         var updateOrder = function (){
+            var tmp = 0;
             document.getElementById("order-list").innerHTML = "";
             order_queue.forEach(function(order) {
-                document.getElementById("order-list").innerHTML += "<a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-shopping-cart fa-fw\"></i> Client "+ order +"<span class=\"pull-right text-muted small\"><em>9:52 AM</em></span></a>";
+                document.getElementById("order-list").innerHTML += "<a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-shopping-cart fa-fw\"></i> Client "+ order +"<span class=\"pull-right text-muted small\"><em>Ordered on "+ o_timestamp[tmp] +"</em></span></a>";
+                tmp++;
             });
         }
 
         var updateQueue = function (){
+            var tmp = 0;
             document.getElementById("queue-list").innerHTML = "";
             waiting_queue.forEach(function(queue) {
-                document.getElementById("queue-list").innerHTML += "<a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-comment fa-fw\"></i> Client "+ queue +"<span class=\"pull-right text-muted small\"><em>4 minutes ago</em></span></a>";
+                document.getElementById("queue-list").innerHTML += "<a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-comment fa-fw\"></i> Client "+ queue +"<span class=\"pull-right text-muted small\"><em>Queued on "+ q_timestamp[tmp] +"</em></span></a>";
+                tmp++;
             });
         }
 
@@ -155,9 +177,11 @@ $(function() {
 
                 // client.subscribe(all_subscribe, {qos : 2});
 
-                client.subscribe(ESP1_request, {qos : 2});
-                client.subscribe(ESP2_request, {qos : 2});
-                client.subscribe(ESP3_request, {qos : 2});
+                // client.subscribe(ESP1_request, {qos : 2});
+                // client.subscribe(ESP2_request, {qos : 2});
+                // client.subscribe(ESP3_request, {qos : 2});
+
+                client.subscribe("Restaurant/+/req", {qos : 2});
     
                 // Set default ping message
                 // publish("0", ESP1_PING_TOPIC, 2, true);
@@ -224,10 +248,12 @@ $(function() {
             if(index_find == -1){
                 waiting_queue.push(i);
                 availible_node.push(i);
+                q_timestamp.push(getTime());
                 all_customer++;
             }
         }
         var deqQ = function () {
+            q_timestamp.shift();
             return waiting_queue.shift();
         }
 
@@ -237,9 +263,11 @@ $(function() {
                 order_queue.push(last_element);
                 if(last_element != i){
                     order_queue.push(i);
+                    o_timestamp.push(getTime());
                 }
             }else{
                 order_queue.push(i);
+                o_timestamp.push(getTime());
             }
             // var index_find = in_ordering_node.indexOf(i);
             // if(index_find == -1){
@@ -250,6 +278,7 @@ $(function() {
             var deq_index = order_queue.indexOf(i);
             if(deq_index > -1){
                 order_queue.splice(deq_index, 1);
+                o_timestamp.splice(deq_index, 1);
             }
         }
 
@@ -279,6 +308,8 @@ $(function() {
             esp2_offline++;
             esp3_offline++;
 
+
+
             if(esp1_offline>offlineTime){
                 esp1_status.text("Offline");
                 esp1_icon.addClass("fa-close");
@@ -307,6 +338,10 @@ $(function() {
                 console.log("ESP3: Go Offline");
             }
         };
+
+        var statusUpdate = function (){
+
+        }
     
         // setInterval(offline_check, 1000);
         // setInterval(update, 1000);

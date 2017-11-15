@@ -56,7 +56,7 @@
 
                         <ul class="list-group">
                             <li class="list-group-item justify-content-between">
-                                Node status
+                                <b>Node status</b>
                                 <span class="badge badge-default badge-pill"></span>
                             </li>
                             @component('layouts.status')
