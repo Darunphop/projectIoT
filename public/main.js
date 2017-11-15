@@ -88,6 +88,7 @@ $(function() {
 
             updateQueue();
             updateOrder();
+            updateStatus();
             
 
             // offline_check();
@@ -125,6 +126,26 @@ $(function() {
                 document.getElementById("queue-list").innerHTML += "<a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-comment fa-fw\"></i> Client "+ queue +"<span class=\"pull-right text-muted small\"><em>Queued on "+ q_timestamp[tmp] +"</em></span></a>";
                 tmp++;
             });
+        }
+
+        var updateStatus = function (){
+            var tmp = 0;
+            document.getElementById("node-status").innerHTML = "";
+            availible_node.forEach(function(entry) {
+                document.getElementById("node-status").innerHTML += nodeStatus(entry);
+            });
+        }
+
+        var nodeStatus = function (entry){
+            var status;
+            if(waiting_queue.indexOf(entry) != -1){
+                status = "InQueue";
+            }else if(order_queue.indexOf(entry) != -1){
+                status = "Ordering";
+            }else{
+                status = "Ready";
+            }
+            return "<li class=\"list-group-item justify-content-between\">Node "+ entry +"<span class=\"badge badge-default badge-pill\" id=\"esp3-statusC\"><div id=\"esp3-status\">"+ status +"</div></span></li>";
         }
 
         var clickToClear = function (order){

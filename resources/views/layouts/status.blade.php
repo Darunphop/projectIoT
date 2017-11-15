@@ -1,4 +1,4 @@
-<li class="list-group-item justify-content-between">
+<!-- <li class="list-group-item justify-content-between">
     Node 1
     <span class="badge badge-default badge-pill" id="esp1-statusC">
         <div class="" id="esp1-status">Unknow</div>
@@ -13,6 +13,7 @@
 <li class="list-group-item justify-content-between">
     Node 3
     <span class="badge badge-default badge-pill" id="esp3-statusC">
-        <div class="" id="esp3-status">Unknow</div>
+        <div class="" id="esp3-status">Unknowoooo</div>
     </span>
-</li>
+</li> -->
+<div id="node-status"></div>
