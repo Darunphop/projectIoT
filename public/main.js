@@ -141,11 +141,15 @@ $(function() {
         }
 
         var updateStatus = function (){
-            var tmp = 0;
-            document.getElementById("node-status").innerHTML = "";
-            availible_node.forEach(function(entry) {
-                document.getElementById("node-status").innerHTML += nodeStatus(entry);
-            });
+            if(availible_node.length != 0){
+                var tmp = 0;
+                document.getElementById("node-status").innerHTML = "";
+                availible_node.forEach(function(entry) {
+                    document.getElementById("node-status").innerHTML += nodeStatus(entry);
+                });
+            }else{
+                document.getElementById("node-status").innerHTML = "<li class=\"list-group-item justify-content-between\">No currently active node<span  class=\"pull-right\"><div class=\"fa fa-check-circle-o  fa-fw\"></div></span></li>";
+            }
         }
 
         var nodeStatus = function (entry){
@@ -388,4 +392,5 @@ $(function() {
         max_customer.text(max_availible_order); // init
         updateQueue();
         updateOrder();
+        updateStatus();
     });
