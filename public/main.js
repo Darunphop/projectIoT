@@ -118,7 +118,7 @@ $(function() {
                 var tmp = 0;
                 document.getElementById("order-list").innerHTML = "";
                 order_queue.forEach(function(order) {
-                    document.getElementById("order-list").innerHTML += "<a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-shopping-cart fa-fw\"></i> Client "+ order +"<span class=\"pull-right text-muted small\"><em>Ordered on "+ o_timestamp[tmp] +"</em></span></a>";
+                    document.getElementById("order-list").innerHTML += "<a href=\"#\" class=\"list-group-item\" ><i class=\"fa fa-shopping-cart fa-fw\" ></i> Client "+ order +"<span class=\"pull-right text-muted small\"><em>Ordered on "+ o_timestamp[tmp] +"</em></span></a>";
                     tmp++;
                 });
             }else{
@@ -148,7 +148,7 @@ $(function() {
                     document.getElementById("node-status").innerHTML += nodeStatus(entry);
                 });
             }else{
-                document.getElementById("node-status").innerHTML = "<li class=\"list-group-item justify-content-between\">No currently active node<span  class=\"pull-right\"><div class=\"fa fa-check-circle-o  fa-fw\"></div></span></li>";
+                document.getElementById("node-status").innerHTML = "<li class=\"list-group-item justify-content-between\">No currently active node<span  class=\"pull-right\"><div class=\"fa fa-check-circle-o  fa-fw\" ></div></span></li>";
             }
         }
 
