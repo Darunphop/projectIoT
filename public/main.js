@@ -1,4 +1,4 @@
-$(function() {{}
+$(function() {
     
         var container = $("#live-chart");
     
@@ -21,7 +21,9 @@ $(function() {{}
         var all_customer_num = $("#all-customer");
         var waiting_q_num = $("#waiting-Q");
         var waiting_o_num = $("#waiting-O");
+        var want_to_order = $("#want-to-order");
         var today_customer = $("#today-customer");
+        var max_customer = $("#max-customer");
 
         var order_list = $("#order-list");
         var queue_list = $("#queue-list");
@@ -33,56 +35,142 @@ $(function() {{}
         var waiting_queue = [];
         var order_queue = [];
 
+        var o_timestamp = [];
+        var q_timestamp = [];
+
         var availible_node = [];
         var in_ordering_node = [];
 
         var all_customer = 0;
 
-        var max_availible_order = 2;
+        var max_availible_order = 1;
     
-    
+        
+
+        // update();   //init update
         // Update 
         var update = function () {
+            if(waiting_queue.length!=0 && in_ordering_node.length < max_availible_order){
+                var toEnq = deqQ();
+                // var toEnq = waiting_queue[0];
+                in_ordering_node.push(toEnq);
+                publish("readyQ", "Restaurant1/"+toEnq, 2, false);
+            }
+
             all_customer_num.text(availible_node.length);
             waiting_o_num.text(order_queue.length);
             waiting_q_num.text(waiting_queue.length);
+            want_to_order.text(in_ordering_node.length)
             today_customer.text(all_customer);
+            max_customer.text(max_availible_order);
             
-            if(waiting_queue!=0 && in_ordering_node.length < max_availible_order){
-                var toEnq = deqQ();
-                enqO(toEnq);
-                publish("ready", "restaurant/"+toEnq, 2, true);
-            }
-            updateQueue();
-            updateOrder();
-            
+
+            // publish("Q"+order_queue, "Restaurant1/q", 2, false);
             if(availible_node.length > 0){
                 availible_node.forEach(function (node){
-                    is_in_q = waiting_queue.indexOf(node);
+                    var is_in_q = waiting_queue.indexOf(node);
+                    var in_O = order_queue.indexOf(node);
                     if(is_in_q > -1){
-                        publish("you are at Queue : "+(is_in_q+1), "restaurant/"+node+"/q", 2, true);
-                    }else{
-                        in_O = order_queue.indexOf(node);
-                        publish("you are at Queue : "+(in_O+1), "restaurant/"+node+"/q", 2, true);
+            //             // alert("is on q "+is_in_q);
+                        publish(""+(is_in_q+1), "Restaurant1/"+node, 2, false);
+                    }else if(in_O > -1){
+            //             // alert("in o "+in_O);
+                        
+            //             // if(in_O == 0){
+                        publish(""+(in_O+1), "Restaurant1/"+node, 2, false);
+            //             // }else{
+            //             //     publish(in_O+1, "Restaurant1/"+node, 2, false);
+            //             // }
+                        // publish(in_O, "Restaurant1/"+node, 2, false);
+                        // publish("HELP"+in_O, "Restaurant1/"+node, 2, false);
                     }
+            // publish("HELP"+is_in_q, "Restaurant1/"+node, 2, false);
                 });
+            
             }
 
+            updateQueue();
+            updateOrder();
+            updateStatus();
+            
 
+            // offline_check();
+
+        }
+
+        var getTime = function (){
+            var currentdate = new Date(); 
+            var datetime = ""   
+            + pad(currentdate.getHours(), 2) + ":"  
+            + pad(currentdate.getMinutes(), 2) + ":" 
+            + pad(currentdate.getSeconds(), 2);
+            return datetime;
+        }
+        
+        var pad = function (n, width, z) {
+            z = z || '0';
+            n = n + '';
+            return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
         }
 
         var updateOrder = function (){
-            document.getElementById("order-list").innerHTML = "";
-            order_queue.forEach(function(order) {
-                document.getElementById("order-list").innerHTML += "<a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-shopping-cart fa-fw\"></i> Client "+ order +"<span class=\"pull-right text-muted small\"><em>9:52 AM</em></span></a>"; 
-            });
+            if(order_queue.length != 0){
+                var tmp = 0;
+                document.getElementById("order-list").innerHTML = "";
+                order_queue.forEach(function(order) {
+                    document.getElementById("order-list").innerHTML += "<a href=\"#\" class=\"list-group-item\" ><i class=\"fa fa-shopping-cart fa-fw\" ></i> Client "+ order +"<span class=\"pull-right text-muted small\"><em>Ordered on "+ o_timestamp[tmp] +"</em></span></a>";
+                    tmp++;
+                });
+            }else{
+                document.getElementById("order-list").innerHTML = "<center><a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-check-circle  fa-fw\"></i>"+"Nothing in Order" +"<span class=\"pull-right text-muted small\"></span></a></center>";
+            }
+
         }
 
         var updateQueue = function (){
-            document.getElementById("queue-list").innerHTML = "";
-            waiting_queue.forEach(function(queue) {
-                document.getElementById("queue-list").innerHTML += "<a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-comment fa-fw\"></i> Client "+ queue +"<span class=\"pull-right text-muted small\"><em>4 minutes ago</em></span></a>";
-            });
+            if(waiting_queue.length != 0){
+                var tmp = 0;
+                document.getElementById("queue-list").innerHTML = "";
+                waiting_queue.forEach(function(queue) {
+                    document.getElementById("queue-list").innerHTML += "<a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-comment fa-fw\"></i> Client "+ queue +"<span class=\"pull-right text-muted small\"><em>Queued on "+ q_timestamp[tmp] +"</em></span></a>";
+                    tmp++;
+                });
+            }else{
+                document.getElementById("queue-list").innerHTML = "<center><a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-check-circle  fa-fw\"></i>"+"Nothing in Queue" +"<span class=\"pull-right text-muted small\"></span></a></center>";
+            }
+        }
+
+        var updateStatus = function (){
+            if(availible_node.length != 0){
+                var tmp = 0;
+                document.getElementById("node-status").innerHTML = "";
+                availible_node.forEach(function(entry) {
+                    document.getElementById("node-status").innerHTML += nodeStatus(entry);
+                });
+            }else{
+                document.getElementById("node-status").innerHTML = "<li class=\"list-group-item justify-content-between\">No currently active node<span  class=\"pull-right\"><div class=\"fa fa-check-circle-o  fa-fw\" ></div></span></li>";
+            }
+        }
+
+        var nodeStatus = function (entry){
+            var status;
+            var bgColor;
+            if(waiting_queue.indexOf(entry) != -1){
+                status = "InQueue";
+                bgColor = "#c1935b";
+            }else if(order_queue.indexOf(entry) != -1){
+                status = "Ordering";
+                bgColor = "#4da886";
+            }else{
+                status = "Ready";
+                bgColor = "#59964f";
+            }
+            return "<li class=\"list-group-item justify-content-between\">Client "+ entry +"<span class=\"badge badge-default badge-pill\" id=\"esp"+ entry +"-statusC\" style=\"background-color:"+ bgColor +"\"><div id=\"esp3-status\">"+ status +"</div></span></li>";
+        }
+
+        var clickToClear = function (order){
+            deqO(order);
+            publish("deqOK", "Restaurant1/"+order, 2, false);
         }
     
         // Boker info
@@ -91,19 +179,19 @@ $(function() {{}
         var port = 9001;
         var clientid = "cpe24-projectG2-"+parseInt(Math.random() * 100000, 16);
     
-        var ESP1_PING_TOPIC = "restaurant/1/ping";
-        var ESP2_PING_TOPIC = "restaurant/2/ping";
-        var ESP3_PING_TOPIC = "restaurant/3/ping";
+        var ESP1_PING_TOPIC = "Restaurant1/1/ping";
+        var ESP2_PING_TOPIC = "Restaurant1/2/ping";
+        var ESP3_PING_TOPIC = "Restaurant1/3/ping";
 
-        var ESP1_request = "restaurant/1";
-        var ESP2_request = "restaurant/2";
-        var ESP3_request = "restaurant/3";
+        var ESP1_request = "Restaurant1/1/req";
+        var ESP2_request = "Restaurant1/2/req";
+        var ESP3_request = "Restaurant1/3/req";
 
-        var ESP1_qup = "restaurant/1/q";
-        var ESP2_qup = "restaurant/2/q";
-        var ESP3_qup = "restaurant/3/q";
+        var ESP1_qup = "Restaurant1/1";
+        var ESP2_qup = "Restaurant1/2";
+        var ESP3_qup = "Restaurant1/3";
 
-        var all_subscribe = "restaurant/#";
+        var all_subscribe = "Restaurant1/#";
     
     
         var client = new Messaging.Client(hostname, port, clientid);
@@ -124,27 +212,29 @@ $(function() {{}
     
                 // Subscibe TOPIC
                 // Ping Pong. Checking esp is alive?
-                client.subscribe(ESP1_PING_TOPIC, {qos: 2});
-                client.subscribe(ESP2_PING_TOPIC, {qos: 2});
-                client.subscribe(ESP3_PING_TOPIC, {qos: 2});
+                // client.subscribe(ESP1_PING_TOPIC, {qos: 2});
+                // client.subscribe(ESP2_PING_TOPIC, {qos: 2});
+                // client.subscribe(ESP3_PING_TOPIC, {qos: 2});
 
                 // client.subscribe(all_subscribe, {qos : 2});
 
-                client.subscribe(ESP1_request, {qos : 2});
-                client.subscribe(ESP2_request, {qos : 2});
-                client.subscribe(ESP3_request, {qos : 2});
+                // client.subscribe(ESP1_request, {qos : 2});
+                // client.subscribe(ESP2_request, {qos : 2});
+                // client.subscribe(ESP3_request, {qos : 2});
+
+                client.subscribe("Restaurant1/+/req", {qos : 2});
     
                 // Set default ping message
-                publish("0", ESP1_PING_TOPIC, 2, true);
-                publish("0", ESP2_PING_TOPIC, 2, true);
-                publish("0", ESP3_PING_TOPIC, 2, true);
+                // publish("0", ESP1_PING_TOPIC, 2, false);
+                // publish("0", ESP2_PING_TOPIC, 2, false);
+                // publish("0", ESP3_PING_TOPIC, 2, false);
             },
     
             //Gets Called if the connection could not be established
             onFailure: function (message) {
                 console.log("Connection failed: " + message.errorMessage);
                 mqtt_status.text("ERROR");
-            },
+            }
     
         };
          
@@ -162,70 +252,49 @@ $(function() {{}
             console.log('Topic: ' + topic + '  | ' + payload);
     
             
-            if(topic == ESP1_PING_TOPIC) {
-                if(payload == "iamalive") {
-                    if(esp1_offline>3) {
-                        console.log("ESP1: Online");
-                    }
-                    document.getElementById("esp1-statusC").style.backgroundColor = "#72c17d";
-                    esp1_status.text("Online");
-                    esp1_icon.removeClass("fa-close");
-                    esp1_icon.addClass("fa-check");
-                    esp1_panel.removeClass("panel-danger");
-                    esp1_panel.addClass("panel-primary");
-                    esp1_offline = 0;
-                }
+            // goOnline(target);
     
-                
-            }else if(topic == ESP2_PING_TOPIC) {
-                if(payload == "iamalive") {
-                    if(esp2_offline>3) {
-                        console.log("ESP2: Online");
-                    }
-                    document.getElementById("esp2-statusC").style.backgroundColor = "#72c17d";
-                    esp2_status.text("Online");
-                    esp2_icon.removeClass("fa-close");
-                    esp2_icon.addClass("fa-check");
-                    esp2_panel.removeClass("panel-danger");
-                    esp2_panel.addClass("panel-primary");
-                    esp2_offline = 0;
+            if(topic.split("/")[2] == "req"){
+                if(payload == "reqQa"){
+                    // alert(payload);
+                    enqQ(target);
+                }else if(payload == "reqO"){
+                    enqO(target);
+                    // publish("reqOK", "Restaurant1/"+target, 2, false);
+                }else if(payload == "deqO"){
+                    deqO(target);
+                    // publish("deqOK", "Restaurant1/"+target, 2, false);
+                }else if(payload == "deqQ"){
+                    deqQ();
+                    // publish("deqOK", "Restaurant1/"+target, 2, false);
+                }else if(payload == "sleep"){
+                    sleep(target);
                 }
-                
-            }else if(topic == ESP3_PING_TOPIC) {
-                if(payload == "iamalive") {
-                    if(esp3_offline>3) {
-                        console.log("ESP3: Online");
-                    }
-                    document.getElementById("esp3-statusC").style.backgroundColor = "#72c17d";
-                    esp3_status.text("Online");
-                    esp3_icon.removeClass("fa-close");
-                    esp3_icon.addClass("fa-check");
-                    esp3_panel.removeClass("panel-danger");
-                    esp3_panel.addClass("panel-primary");
-                    esp3_offline = 0;
-                }
-                
-            }else if(payload == "reqQ"){
-                enqQ(target);
-            }else if(payload == "reqO"){
-                enqO(target);
-            }else if(payload == "deqO"){
-                deqO(target);
-            }else if(payload == "sleep"){
-                sleep(target);
             }
             update();
         };
     
+        var goOnline = function (node){
+            document.getElementById("esp"+node+"-statusC").style.backgroundColor = "#72c17d";
+            esp1_status.text("Online");
+            esp1_icon.removeClass("fa-close");
+            esp1_icon.addClass("fa-check");
+            esp1_panel.removeClass("panel-danger");
+            esp1_panel.addClass("panel-primary");
+            esp1_offline = 0;
+        }
+
         var enqQ = function (i) {
             var index_find = availible_node.indexOf(i);
             if(index_find == -1){
                 waiting_queue.push(i);
                 availible_node.push(i);
+                q_timestamp.push(getTime());
                 all_customer++;
             }
         }
         var deqQ = function () {
+            q_timestamp.shift();
             return waiting_queue.shift();
         }
 
@@ -235,19 +304,22 @@ $(function() {{}
                 order_queue.push(last_element);
                 if(last_element != i){
                     order_queue.push(i);
+                    o_timestamp.push(getTime());
                 }
             }else{
                 order_queue.push(i);
+                o_timestamp.push(getTime());
             }
-            var index_find = in_ordering_node.indexOf(i);
-            if(index_find == -1){
-                in_ordering_node.push(i);
-            }
+            // var index_find = in_ordering_node.indexOf(i);
+            // if(index_find == -1){
+            //     in_ordering_node.push(i);
+            // }
         }
         var deqO = function (i) {
             var deq_index = order_queue.indexOf(i);
             if(deq_index > -1){
                 order_queue.splice(deq_index, 1);
+                o_timestamp.splice(deq_index, 1);
             }
         }
 
@@ -272,12 +344,14 @@ $(function() {{}
         }
     
         var offline_check = function() {
+            var offlineTime = 10;
             esp1_offline++;
             esp2_offline++;
             esp3_offline++;
 
-            if(esp1_offline>3){
-                esp1_sensor_data = [];
+
+
+            if(esp1_offline>offlineTime){
                 esp1_status.text("Offline");
                 esp1_icon.addClass("fa-close");
                 esp1_icon.removeClass("fa-check");
@@ -286,8 +360,7 @@ $(function() {{}
                 document.getElementById("esp1-statusC").style.backgroundColor = "#ad3030";
                 console.log("ESP1: Go Offline");
             }
-            if(esp2_offline>3){
-                esp2_sensor_data = [];
+            if(esp2_offline>offlineTime){
                 esp2_status.text("Offline");
                 esp2_icon.addClass("fa-close");
                 esp2_icon.removeClass("fa-check");
@@ -296,8 +369,7 @@ $(function() {{}
                 document.getElementById("esp2-statusC").style.backgroundColor = "#ad3030";
                 console.log("ESP2: Go Offline");
             }
-            if(esp3_offline>3){
-                esp3_sensor_data = [];
+            if(esp3_offline>offlineTime){
                 document.getElementById("esp3-statusC").style.backgroundColor = "#ad3030";
                 esp3_status.text("Offline");
                 esp3_icon.addClass("fa-close");
@@ -307,7 +379,18 @@ $(function() {{}
                 console.log("ESP3: Go Offline");
             }
         };
+
+        var statusUpdate = function (){
+
+        }
     
-        setInterval(offline_check, 1000);
+        // setInterval(offline_check, 1000);
+        // setInterval(update, 1000);
+
     
+        // update();   //init update
+        max_customer.text(max_availible_order); // init
+        updateQueue();
+        updateOrder();
+        updateStatus();
     });

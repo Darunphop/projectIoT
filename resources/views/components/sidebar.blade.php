@@ -40,7 +40,7 @@
                         <i class="fa fa-close fa-5x" id="esp3-icon"></i> <!-- fa-close -->
                     </div>
                     <div class="col-xs-9 text-right">
-                        <div class="huge" id="esp3-status">Unknow</div>
+                        <div class="huge" id="esp3-status">Unknowooo</div>
                         <div>NODE3 Status</div>
                     </div>
                 </div>
