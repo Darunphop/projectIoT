@@ -7,6 +7,8 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
+
+                <!-- <a><image src="https://lilcmu.github.io/cpe_energy/image/cpecmu-logo.png" width="32"></image></a> -->
                 <a class="navbar-brand" href="/">IoT Resturant</a>
             </div>
             <!-- /.navbar-header -->
@@ -33,7 +35,7 @@
                                 </span>
                             </li>
                             <li class="list-group-item justify-content-between">
-                                Customers in restaurant
+                                Customers in services
                                 <span class="badge badge-default badge-pill">
                                     <div id="want-to-order">0</div>
                                 </span>
@@ -50,6 +52,14 @@
                                 Today customers
                                 <span class="badge badge-default badge-pill">
                                     <div id="today-customer">0</div>
+                                </span>
+                            </li>
+                        </ul>
+                        <ul class="list-group">
+                            <li class="list-group-item justify-content-between">
+                                Max servicable customers
+                                <span class="badge badge-default badge-pill">
+                                    <div id="max-customer">0</div>
                                 </span>
                             </li>
                         </ul>

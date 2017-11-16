@@ -23,6 +23,7 @@ $(function() {
         var waiting_o_num = $("#waiting-O");
         var want_to_order = $("#want-to-order");
         var today_customer = $("#today-customer");
+        var max_customer = $("#max-customer");
 
         var order_list = $("#order-list");
         var queue_list = $("#queue-list");
@@ -45,7 +46,8 @@ $(function() {
         var max_availible_order = 1;
     
         
-    
+
+        // update();   //init update
         // Update 
         var update = function () {
             if(waiting_queue.length!=0 && in_ordering_node.length < max_availible_order){
@@ -60,6 +62,7 @@ $(function() {
             waiting_q_num.text(waiting_queue.length);
             want_to_order.text(in_ordering_node.length)
             today_customer.text(all_customer);
+            max_customer.text(max_availible_order);
             
 
             // publish("Q"+order_queue, "Restaurant1/q", 2, false);
@@ -111,21 +114,30 @@ $(function() {
         }
 
         var updateOrder = function (){
-            var tmp = 0;
-            document.getElementById("order-list").innerHTML = "";
-            order_queue.forEach(function(order) {
-                document.getElementById("order-list").innerHTML += "<a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-shopping-cart fa-fw\"></i> Client "+ order +"<span class=\"pull-right text-muted small\"><em>Ordered on "+ o_timestamp[tmp] +"</em></span></a>";
-                tmp++;
-            });
+            if(order_queue.length != 0){
+                var tmp = 0;
+                document.getElementById("order-list").innerHTML = "";
+                order_queue.forEach(function(order) {
+                    document.getElementById("order-list").innerHTML += "<a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-shopping-cart fa-fw\"></i> Client "+ order +"<span class=\"pull-right text-muted small\"><em>Ordered on "+ o_timestamp[tmp] +"</em></span></a>";
+                    tmp++;
+                });
+            }else{
+                document.getElementById("order-list").innerHTML = "<center><a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-check-circle  fa-fw\"></i>"+"Nothing in Order" +"<span class=\"pull-right text-muted small\"></span></a></center>";
+            }
+
         }
 
         var updateQueue = function (){
-            var tmp = 0;
-            document.getElementById("queue-list").innerHTML = "";
-            waiting_queue.forEach(function(queue) {
-                document.getElementById("queue-list").innerHTML += "<a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-comment fa-fw\"></i> Client "+ queue +"<span class=\"pull-right text-muted small\"><em>Queued on "+ q_timestamp[tmp] +"</em></span></a>";
-                tmp++;
-            });
+            if(waiting_queue.length != 0){
+                var tmp = 0;
+                document.getElementById("queue-list").innerHTML = "";
+                waiting_queue.forEach(function(queue) {
+                    document.getElementById("queue-list").innerHTML += "<a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-comment fa-fw\"></i> Client "+ queue +"<span class=\"pull-right text-muted small\"><em>Queued on "+ q_timestamp[tmp] +"</em></span></a>";
+                    tmp++;
+                });
+            }else{
+                document.getElementById("queue-list").innerHTML = "<center><a href=\"#\" class=\"list-group-item\"><i class=\"fa fa-check-circle  fa-fw\"></i>"+"Nothing in Queue" +"<span class=\"pull-right text-muted small\"></span></a></center>";
+            }
         }
 
         var updateStatus = function (){
@@ -149,7 +161,7 @@ $(function() {
                 status = "Ready";
                 bgColor = "#59964f";
             }
-            return "<li class=\"list-group-item justify-content-between\">Node "+ entry +"<span class=\"badge badge-default badge-pill\" id=\"esp"+ entry +"-statusC\" style=\"background-color:"+ bgColor +"\"><div id=\"esp3-status\">"+ status +"</div></span></li>";
+            return "<li class=\"list-group-item justify-content-between\">Client "+ entry +"<span class=\"badge badge-default badge-pill\" id=\"esp"+ entry +"-statusC\" style=\"background-color:"+ bgColor +"\"><div id=\"esp3-status\">"+ status +"</div></span></li>";
         }
 
         var clickToClear = function (order){
@@ -372,4 +384,8 @@ $(function() {
         // setInterval(update, 1000);
 
     
+        // update();   //init update
+        max_customer.text(max_availible_order); // init
+        updateQueue();
+        updateOrder();
     });

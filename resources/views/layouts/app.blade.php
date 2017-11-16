@@ -9,6 +9,8 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
+    <link rel="shortcut icon" href="{{ 'img/pavicon.png' }}">
+
     <title>IoT Restaurant</title>
 
     <!-- Bootstrap Core CSS -->
